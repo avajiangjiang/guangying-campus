@@ -18,8 +18,17 @@ interface CaseItem {
 function VideoPlayer({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hasError, setHasError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [showPlayButton, setShowPlayButton] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // 设置超时，避免一直转圈
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowPlayButton(true);
+    }, 2000); // 2秒后显示播放按钮
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // 点击播放并进入全屏
   const playFullscreen = async (e: React.MouseEvent | React.TouchEvent) => {
@@ -61,8 +70,8 @@ function VideoPlayer({ src }: { src: string }) {
   };
 
   const handleError = () => {
-    setIsLoading(false);
     setHasError(true);
+    setShowPlayButton(true);
     if (videoRef.current?.error) {
       switch (videoRef.current.error.code) {
         case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
@@ -93,19 +102,12 @@ function VideoPlayer({ src }: { src: string }) {
         x5-video-player-fullscreen="true"
         x5-playsinline="true"
         preload="metadata"
-        onLoadedData={() => setIsLoading(false)}
+        onLoadedData={() => setShowPlayButton(true)}
         onError={handleError}
       />
       
-      {/* 加载中状态 */}
-      {isLoading && !hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/10 pointer-events-none">
-          <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
-        </div>
-      )}
-      
-      {/* 播放按钮 */}
-      {!hasError && !isLoading && (
+      {/* 播放按钮 - 始终显示，点击即可播放 */}
+      {showPlayButton && !hasError && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
           <div className="flex flex-col items-center gap-2">
             <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-white/95 flex items-center justify-center shadow-xl">
