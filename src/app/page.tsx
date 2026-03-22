@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Camera, Video, BookOpen, Film, Menu, X, ChevronRight, Image } from 'lucide-react';
+import { Camera, Video, BookOpen, Film, Menu, X, ChevronRight, Image, Play } from 'lucide-react';
 
 interface CaseItem {
   id: string;
@@ -12,6 +12,59 @@ interface CaseItem {
   description: string;
   mediaUrl: string;
   mediaType: 'image' | 'video';
+}
+
+// 视频播放组件
+function VideoPlayer({ src }: { src: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+        setIsPlaying(true);
+      } else {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      }
+    }
+  };
+
+  const handleEnded = () => {
+    setIsPlaying(false);
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
+  };
+
+  const handlePlay = () => {
+    setIsPlaying(true);
+  };
+
+  return (
+    <div className="relative w-full h-full cursor-pointer" onClick={togglePlay}>
+      <video 
+        ref={videoRef}
+        src={src} 
+        className="w-full h-full object-cover" 
+        playsInline 
+        preload="metadata"
+        webkit-playsinline="true"
+        onEnded={handleEnded}
+        onPause={handlePause}
+        onPlay={handlePlay}
+      />
+      {!isPlaying && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+          <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg transition-transform hover:scale-110">
+            <Play className="w-5 h-5 md:w-6 md:h-6 text-slate-800 ml-0.5" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function Home() {
@@ -238,14 +291,7 @@ export default function Home() {
                   <div className="aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center relative overflow-hidden">
                     {caseItem.mediaUrl ? (
                       caseItem.mediaType === 'video' ? (
-                        <video 
-                          src={caseItem.mediaUrl} 
-                          className="w-full h-full object-cover" 
-                          controls 
-                          playsInline 
-                          preload="metadata"
-                          webkit-playsinline="true"
-                        />
+                        <VideoPlayer src={caseItem.mediaUrl} />
                       ) : (
                         <img src={caseItem.mediaUrl} alt={caseItem.title} className="w-full h-full object-cover" />
                       )
