@@ -17,10 +17,12 @@ interface CaseItem {
 // 视频播放组件
 function VideoPlayer({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showNativeControls, setShowNativeControls] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const togglePlay = async (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
@@ -54,6 +56,34 @@ function VideoPlayer({ src }: { src: string }) {
     }
   };
 
+  // 全屏播放
+  const requestFullscreen = async () => {
+    const elem = containerRef.current || videoRef.current;
+    if (!elem) return;
+    
+    try {
+      if (elem.requestFullscreen) {
+        await elem.requestFullscreen();
+      } else if ((elem as any).webkitRequestFullscreen) {
+        // Safari
+        await (elem as any).webkitRequestFullscreen();
+      } else if ((elem as any).webkitEnterFullscreen) {
+        // iOS
+        await (elem as any).webkitEnterFullscreen();
+      }
+      
+      // 进入全屏后自动播放
+      if (videoRef.current && videoRef.current.paused) {
+        await videoRef.current.play();
+        setIsPlaying(true);
+      }
+    } catch (err) {
+      console.error('全屏请求失败:', err);
+      // 如果全屏失败，尝试直接播放
+      togglePlay({ preventDefault: () => {}, stopPropagation: () => {} } as any);
+    }
+  };
+
   const handleEnded = () => {
     setIsPlaying(false);
   };
@@ -71,12 +101,26 @@ function VideoPlayer({ src }: { src: string }) {
   };
 
   const handleError = () => {
-    setHasError(true);
     setIsLoading(false);
+    setHasError(true);
+    // 检查是否是网络错误或格式不支持
+    if (videoRef.current?.error) {
+      switch (videoRef.current.error.code) {
+        case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+          setErrorMessage('视频格式不支持或链接已失效');
+          break;
+        case MediaError.MEDIA_ERR_NETWORK:
+          setErrorMessage('网络错误，请检查网络连接');
+          break;
+        default:
+          setErrorMessage('视频加载失败，请稍后重试');
+      }
+    }
   };
 
   return (
     <div 
+      ref={containerRef}
       className="relative w-full h-full"
       onClick={togglePlay}
       onTouchEnd={togglePlay}
@@ -110,8 +154,17 @@ function VideoPlayer({ src }: { src: string }) {
       {/* 播放按钮 - 仅在暂停时显示，且未显示原生控件时 */}
       {!isPlaying && !hasError && !isLoading && !showNativeControls && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
-          <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/95 flex items-center justify-center shadow-xl">
-            <Play className="w-6 h-6 md:w-7 md:h-7 text-slate-800 ml-1" />
+          <div className="flex flex-col items-center gap-2 pointer-events-auto">
+            <button 
+              className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-white/95 flex items-center justify-center shadow-xl transition-transform hover:scale-110 active:scale-95"
+              onClick={(e) => {
+                e.stopPropagation();
+                requestFullscreen();
+              }}
+            >
+              <Play className="w-7 h-7 md:w-8 md:h-8 text-slate-800 ml-1" />
+            </button>
+            <span className="text-white text-xs bg-black/50 px-2 py-1 rounded">点击播放</span>
           </div>
         </div>
       )}
@@ -119,10 +172,11 @@ function VideoPlayer({ src }: { src: string }) {
       {/* 错误提示 - 点击可重试 */}
       {hasError && (
         <div 
-          className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer"
+          className="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer"
           onClick={() => {
             setHasError(false);
             setShowNativeControls(true);
+            setErrorMessage('');
             setTimeout(() => {
               if (videoRef.current) {
                 videoRef.current.load();
@@ -130,11 +184,12 @@ function VideoPlayer({ src }: { src: string }) {
             }, 100);
           }}
         >
-          <div className="text-white text-xs text-center px-2">
-            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-2">
-              <Play className="w-6 h-6" />
+          <div className="text-white text-center px-4">
+            <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">
+              <Play className="w-7 h-7" />
             </div>
-            点击重试
+            <p className="text-sm mb-1">{errorMessage || '视频加载失败'}</p>
+            <p className="text-xs opacity-70">点击重试</p>
           </div>
         </div>
       )}

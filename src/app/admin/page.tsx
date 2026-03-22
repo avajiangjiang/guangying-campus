@@ -171,7 +171,18 @@ export default function AdminPage() {
   };
 
   const updateMediaUrl = (id: string, url: string) => {
-    const isVideo = url.match(/\.(mp4|mov|avi|webm|mkv)(\?|$)/i) || url.includes('video');
+    // 改进的媒体类型判断：检查扩展名、URL关键字、以及常见视频平台
+    const isVideo = 
+      url.match(/\.(mp4|mov|avi|webm|mkv|m4v|3gp|flv|wmv)(\?|$)/i) ||
+      url.toLowerCase().includes('video') ||
+      url.includes('tc.qq.com') ||  // 腾讯视频
+      url.includes('v.qq.com') ||   // 腾讯视频
+      url.includes('youku.com') ||  // 优酷
+      url.includes('iqiyi.com') ||  // 爱奇艺
+      url.includes('bilibili.com') || // B站
+      url.includes('douyin.com') || // 抖音
+      url.includes('kuaishou.com'); // 快手
+    
     const updatedCases = cases.map((c) =>
       c.id === id ? { ...c, mediaUrl: url, mediaType: (isVideo ? 'video' : 'image') as 'video' | 'image' } : c
     );
@@ -242,8 +253,9 @@ export default function AdminPage() {
         <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
           <h3 className="font-semibold text-amber-900 mb-2">使用说明</h3>
           <ul className="text-sm text-amber-800 space-y-1">
-            <li>• <strong>方式一</strong>：点击「上传文件」按钮选择本地的图片或视频（支持100MB以内）</li>
+            <li>• <strong>方式一</strong>：点击「上传文件」按钮选择本地的图片或视频（支持100MB以内，推荐）</li>
             <li>• <strong>方式二</strong>：在「媒体链接」输入框粘贴已有的图片/视频URL链接</li>
+            <li className="text-red-600">• ⚠️ 注意：腾讯视频、微信视频等平台的链接有时效限制，建议使用「上传文件」功能</li>
             <li>• 上传成功后会自动保存，可返回首页预览效果</li>
           </ul>
         </div>
@@ -323,6 +335,43 @@ export default function AdminPage() {
                   />
                 </div>
 
+                {/* 快速切换媒体类型 */}
+                <div className="mb-3 flex items-center gap-2">
+                  <Label className="text-xs text-slate-500">类型：</Label>
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      variant={caseItem.mediaType === 'video' ? 'default' : 'outline'}
+                      className={`h-7 text-xs ${caseItem.mediaType === 'video' ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                      onClick={() => {
+                        const updatedCases = cases.map((c) =>
+                          c.id === caseItem.id ? { ...c, mediaType: 'video' as const } : c
+                        );
+                        setCases(updatedCases);
+                        saveCases(updatedCases);
+                      }}
+                    >
+                      <Video className="w-3 h-3 mr-1" />
+                      视频
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={caseItem.mediaType === 'image' ? 'default' : 'outline'}
+                      className={`h-7 text-xs ${caseItem.mediaType === 'image' ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                      onClick={() => {
+                        const updatedCases = cases.map((c) =>
+                          c.id === caseItem.id ? { ...c, mediaType: 'image' as const } : c
+                        );
+                        setCases(updatedCases);
+                        saveCases(updatedCases);
+                      }}
+                    >
+                      <Image className="w-3 h-3 mr-1" />
+                      图片
+                    </Button>
+                  </div>
+                </div>
+
                 {/* 操作按钮 */}
                 <div className="flex gap-2">
                   <Button
@@ -383,6 +432,23 @@ export default function AdminPage() {
                         {cat}
                       </SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>媒体类型</Label>
+                <Select
+                  value={currentCase.mediaType}
+                  onValueChange={(value) =>
+                    setCurrentCase({ ...currentCase, mediaType: value as 'video' | 'image' })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="video">视频</SelectItem>
+                    <SelectItem value="image">图片</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
