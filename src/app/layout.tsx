@@ -4,24 +4,23 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: '新应用 | 扣子编程',
-    template: '%s | 扣子编程',
+    default: '光影校园 | 专业校园影像拍摄服务',
+    template: '%s | 光影校园',
   },
   description:
-    '扣子编程是一款一站式云端 Vibe Coding 开发平台。通过对话轻松构建智能体、工作流和网站，实现从创意到上线的无缝衔接。',
+    '光影校园专注校园影像拍摄十余年，提供校园活动拍摄、专题片拍摄、毕业相册、毕业微电影等专业服务。记录青春岁月，定格美好时光。',
   keywords: [
-    '扣子编程',
-    'Coze Code',
-    'Vibe Coding',
-    'AI 编程',
-    '智能体搭建',
-    '工作流搭建',
-    '网站搭建',
-    '网站部署',
-    '全栈开发',
-    'AI 工程师',
+    '校园拍摄',
+    '毕业照',
+    '毕业相册',
+    '毕业微电影',
+    '校园活动拍摄',
+    '专题片拍摄',
+    '校园摄影',
+    '学校宣传片',
+    '青春记录',
   ],
-  authors: [{ name: 'Coze Code Team', url: 'https://code.coze.cn' }],
+  authors: [{ name: '光影校园' }],
   generator: 'Coze Code',
   // icons: {
   //   icon: '',
