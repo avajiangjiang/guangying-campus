@@ -20,15 +20,57 @@ function VideoPlayer({ src }: { src: string }) {
   const [hasError, setHasError] = useState(false);
   const [showPlayButton, setShowPlayButton] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [posterUrl, setPosterUrl] = useState<string>('');
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
-  // 设置超时，避免一直转圈
+  // 加载视频第一帧作为封面
   useEffect(() => {
+    // 创建一个隐藏的video元素来截取第一帧
+    const tempVideo = document.createElement('video');
+    tempVideo.src = src;
+    tempVideo.preload = 'auto';
+    tempVideo.muted = true;
+    tempVideo.playsInline = true;
+    
+    const handleLoadedData = () => {
+      setVideoLoaded(true);
+      setShowPlayButton(true);
+      
+      // 尝试截取第一帧作为封面
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = tempVideo.videoWidth || 640;
+        canvas.height = tempVideo.videoHeight || 360;
+        const ctx = canvas.getContext('2d');
+        if (ctx && tempVideo.videoWidth > 0) {
+          ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+          setPosterUrl(dataUrl);
+        }
+      } catch (err) {
+        // 跨域视频无法截取，使用视频本身显示第一帧
+        console.log('无法截取视频第一帧（可能是跨域限制）');
+      }
+    };
+    
+    const handleError = () => {
+      setShowPlayButton(true);
+    };
+    
+    tempVideo.addEventListener('loadeddata', handleLoadedData);
+    tempVideo.addEventListener('error', handleError);
+    
+    // 设置超时
     const timer = setTimeout(() => {
       setShowPlayButton(true);
-    }, 2000); // 2秒后显示播放按钮
+    }, 3000);
     
-    return () => clearTimeout(timer);
-  }, []);
+    return () => {
+      tempVideo.removeEventListener('loadeddata', handleLoadedData);
+      tempVideo.removeEventListener('error', handleError);
+      clearTimeout(timer);
+    };
+  }, [src]);
 
   // 点击播放并进入全屏
   const playFullscreen = async (e: React.MouseEvent | React.TouchEvent) => {
@@ -88,27 +130,37 @@ function VideoPlayer({ src }: { src: string }) {
 
   return (
     <div 
-      className="relative w-full h-full cursor-pointer"
+      className="relative w-full h-full cursor-pointer overflow-hidden"
       onClick={playFullscreen}
       onTouchEnd={playFullscreen}
     >
+      {/* 封面图片 - 显示视频第一帧 */}
+      {posterUrl && !hasError && (
+        <img 
+          src={posterUrl} 
+          alt="视频封面" 
+          className="absolute inset-0 w-full h-full object-cover z-10"
+        />
+      )}
+      
+      {/* 视频元素 - 当没有封面图时显示视频本身 */}
       <video 
         ref={videoRef}
         src={src} 
-        className="w-full h-full object-cover" 
+        className={`absolute inset-0 w-full h-full object-cover ${posterUrl ? 'opacity-0' : ''}`}
         playsInline
         webkit-playsinline="true"
         x5-video-player-type="h5"
         x5-video-player-fullscreen="true"
         x5-playsinline="true"
-        preload="metadata"
-        onLoadedData={() => setShowPlayButton(true)}
+        preload={posterUrl ? 'none' : 'auto'}
+        muted
         onError={handleError}
       />
       
-      {/* 播放按钮 - 始终显示，点击即可播放 */}
+      {/* 播放按钮 */}
       {showPlayButton && !hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none z-20">
           <div className="flex flex-col items-center gap-2">
             <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-white/95 flex items-center justify-center shadow-xl">
               <Play className="w-7 h-7 md:w-8 md:h-8 text-slate-800 ml-1" />
@@ -121,7 +173,7 @@ function VideoPlayer({ src }: { src: string }) {
       {/* 错误提示 */}
       {hasError && (
         <div 
-          className="absolute inset-0 flex items-center justify-center bg-black/40"
+          className="absolute inset-0 flex items-center justify-center bg-black/40 z-20"
           onClick={playFullscreen}
         >
           <div className="text-white text-center px-4">
