@@ -279,7 +279,7 @@ export default function Home() {
           ) : cases.length === 0 ? (
             <div className="text-center py-12 text-slate-400 text-sm">暂无案例</div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-3 gap-2 md:gap-6">
               {cases.map((caseItem) => (
                 <Card key={caseItem.id} className="overflow-hidden group cursor-pointer border border-slate-100 hover:border-slate-200 hover:shadow-lg transition-all duration-300">
                   <div className="aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center relative overflow-hidden">
@@ -290,23 +290,23 @@ export default function Home() {
                         <img src={caseItem.mediaUrl} alt={caseItem.title} className="w-full h-full object-cover" />
                       )
                     ) : (
-                      <div className="flex flex-col items-center gap-1">
+                      <div className="flex flex-col items-center gap-0.5 md:gap-1">
                         {caseItem.mediaType === 'video' ? (
-                          <Video className="w-8 h-8 md:w-10 md:h-10 text-slate-300" />
+                          <Video className="w-5 h-5 md:w-10 md:h-10 text-slate-300" />
                         ) : (
-                          <Image className="w-8 h-8 md:w-10 md:h-10 text-slate-300" />
+                          <Image className="w-5 h-5 md:w-10 md:h-10 text-slate-300" />
                         )}
                       </div>
                     )}
                   </div>
-                  <CardContent className="p-3 md:p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[10px] md:text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full">
+                  <CardContent className="p-1.5 md:p-4">
+                    <div className="flex items-center gap-1 mb-1 md:mb-2">
+                      <span className="text-[8px] md:text-xs px-1.5 md:px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full">
                         {caseItem.category}
                       </span>
                     </div>
-                    <h3 className="font-medium text-slate-900 mb-1 text-sm md:text-base line-clamp-1">{caseItem.title}</h3>
-                    <p className="text-xs text-slate-500 line-clamp-1 hidden md:block">{caseItem.description}</p>
+                    <h3 className="font-medium text-slate-900 text-[10px] md:text-base line-clamp-1">{caseItem.title}</h3>
+                    <p className="text-[10px] text-slate-500 line-clamp-1 hidden md:block">{caseItem.description}</p>
                   </CardContent>
                 </Card>
               ))}
