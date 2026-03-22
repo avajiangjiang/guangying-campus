@@ -235,23 +235,23 @@ export default function Home() {
               { name: '高端定制版', price: '¥598起', desc: '奢华质感，专属定制', color: 'from-amber-100 to-amber-50' },
             ].map((album, index) => (
               <Card key={index} className="group cursor-pointer border border-slate-100 hover:border-slate-200 hover:shadow-xl transition-all duration-300 overflow-hidden">
-                <div className={`aspect-[3/4] bg-gradient-to-br ${album.color} flex items-center justify-center relative`}>
+                <div className={`aspect-square bg-gradient-to-br ${album.color} flex items-center justify-center relative`}>
                   <div className="text-center">
-                    <BookOpen className="w-12 h-12 md:w-16 md:h-16 text-slate-400 mx-auto mb-2" />
-                    <span className="text-xs text-slate-400">相册预览</span>
+                    <BookOpen className="w-10 h-10 md:w-14 md:h-14 text-slate-400 mx-auto mb-1" />
+                    <span className="text-[10px] md:text-xs text-slate-400">相册预览</span>
                   </div>
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                    <span className="text-white text-sm font-medium px-4 py-2 bg-white/20 rounded-full backdrop-blur-sm">
+                    <span className="text-white text-xs md:text-sm font-medium px-3 py-1.5 bg-white/20 rounded-full backdrop-blur-sm">
                       查看详情
                     </span>
                   </div>
                 </div>
                 <CardContent className="p-3 md:p-4">
-                  <h3 className="font-semibold text-slate-900 text-sm md:text-base mb-1">{album.name}</h3>
-                  <p className="text-[10px] md:text-xs text-slate-500 mb-2">{album.desc}</p>
+                  <h3 className="font-semibold text-slate-900 text-sm md:text-base mb-0.5 md:mb-1">{album.name}</h3>
+                  <p className="text-[10px] md:text-xs text-slate-500 mb-1.5 md:mb-2">{album.desc}</p>
                   <div className="flex items-center justify-between">
                     <span className="text-blue-600 font-bold text-sm md:text-base">{album.price}</span>
-                    <Button size="sm" variant="ghost" className="text-xs text-slate-500 hover:text-blue-600 p-0 h-auto">
+                    <Button size="sm" variant="ghost" className="text-[10px] md:text-xs text-slate-500 hover:text-blue-600 p-0 h-auto">
                       了解更多
                     </Button>
                   </div>
@@ -279,7 +279,7 @@ export default function Home() {
           ) : cases.length === 0 ? (
             <div className="text-center py-12 text-slate-400 text-sm">暂无案例</div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {cases.map((caseItem) => (
                 <Card key={caseItem.id} className="overflow-hidden group cursor-pointer border border-slate-100 hover:border-slate-200 hover:shadow-lg transition-all duration-300">
                   <div className="aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center relative overflow-hidden">
