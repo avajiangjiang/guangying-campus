@@ -47,6 +47,22 @@
       "description": "展现专业特色，吸引优秀学子",
       "mediaUrl": "",
       "mediaType": "video"
+    },
+    {
+      "id": "7",
+      "title": "XX中学建校50周年纪录片",
+      "category": "专题片",
+      "description": "追溯五十年辉煌历程，传承教育精神",
+      "mediaUrl": "",
+      "mediaType": "video"
+    },
+    {
+      "id": "8",
+      "title": "XX小学六一儿童节汇演",
+      "category": "活动拍摄",
+      "description": "记录孩子们的精彩表演与欢笑",
+      "mediaUrl": "",
+      "mediaType": "image"
     }
   ]
 }
