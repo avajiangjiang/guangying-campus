@@ -1,0 +1,52 @@
+{
+  "cases": [
+    {
+      "id": "1",
+      "title": "XX中学2024届毕业微电影",
+      "category": "毕业微电影",
+      "description": "记录三年青春时光，讲述成长的故事",
+      "mediaUrl": "",
+      "mediaType": "video"
+    },
+    {
+      "id": "2",
+      "title": "XX大学校园宣传片",
+      "category": "专题片",
+      "description": "展现百年名校风采，传递教育理念",
+      "mediaUrl": "",
+      "mediaType": "video"
+    },
+    {
+      "id": "3",
+      "title": "XX小学运动会纪实",
+      "category": "活动拍摄",
+      "description": "捕捉运动场上的精彩瞬间",
+      "mediaUrl": "",
+      "mediaType": "image"
+    },
+    {
+      "id": "4",
+      "title": "XX高中毕业相册",
+      "category": "毕业相册",
+      "description": "定格18岁的青春容颜",
+      "mediaUrl": "",
+      "mediaType": "image"
+    },
+    {
+      "id": "5",
+      "title": "XX中学艺术展演",
+      "category": "活动拍摄",
+      "description": "舞台上的光芒与梦想",
+      "mediaUrl": "",
+      "mediaType": "image"
+    },
+    {
+      "id": "6",
+      "title": "XX学院招生宣传片",
+      "category": "专题片",
+      "description": "展现专业特色，吸引优秀学子",
+      "mediaUrl": "",
+      "mediaType": "video"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -10,10 +10,32 @@ import {
   CarouselPrevious,
   CarouselNext,
 } from '@/components/ui/carousel';
-import { Camera, Video, BookOpen, Film, Phone, Mail, MapPin, Menu, X, ChevronRight } from 'lucide-react';
+import { Camera, Video, BookOpen, Film, Phone, Mail, MapPin, Menu, X, ChevronRight, Image, Play } from 'lucide-react';
+
+interface CaseItem {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  mediaUrl: string;
+  mediaType: 'image' | 'video';
+}
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [cases, setCases] = useState<CaseItem[]>([]);
+  const [casesLoading, setCasesLoading] = useState(true);
+
+  // 加载案例数据
+  useEffect(() => {
+    fetch('/api/cases')
+      .then((res) => res.json())
+      .then((data) => {
+        setCases(data.cases || []);
+      })
+      .catch((err) => console.error('加载案例失败:', err))
+      .finally(() => setCasesLoading(false));
+  }, []);
 
   const services = [
     {
@@ -35,39 +57,6 @@ export default function Home() {
       icon: Film,
       title: '毕业微电影',
       description: '创意毕业微电影拍摄，用影像讲述青春故事，留下难忘的毕业纪念',
-    },
-  ];
-
-  const cases = [
-    {
-      title: 'XX中学2024届毕业微电影',
-      category: '毕业微电影',
-      description: '记录三年青春时光，讲述成长的故事',
-    },
-    {
-      title: 'XX大学校园宣传片',
-      category: '专题片',
-      description: '展现百年名校风采，传递教育理念',
-    },
-    {
-      title: 'XX小学运动会纪实',
-      category: '活动拍摄',
-      description: '捕捉运动场上的精彩瞬间',
-    },
-    {
-      title: 'XX高中毕业相册',
-      category: '毕业相册',
-      description: '定格18岁的青春容颜',
-    },
-    {
-      title: 'XX中学艺术展演',
-      category: '活动拍摄',
-      description: '舞台上的光芒与梦想',
-    },
-    {
-      title: 'XX学院招生宣传片',
-      category: '专题片',
-      description: '展现专业特色，吸引优秀学子',
     },
   ];
 
@@ -277,41 +266,74 @@ export default function Home() {
             </p>
           </div>
 
-          <Carousel
-            opts={{
-              align: 'start',
-              loop: true,
-            }}
-            className="w-full"
-          >
-            <CarouselContent className="-ml-2 md:-ml-4">
-              {cases.map((caseItem, index) => (
-                <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                  <Card className="overflow-hidden group cursor-pointer border-none shadow-md hover:shadow-xl transition-all duration-300">
-                    <div className="aspect-video bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 flex items-center justify-center relative overflow-hidden">
-                      <Video className="w-12 h-12 text-blue-500" />
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                        <Button variant="secondary" size="sm">
-                          查看详情
-                        </Button>
+          {casesLoading ? (
+            <div className="text-center py-12 text-slate-500">加载中...</div>
+          ) : cases.length === 0 ? (
+            <div className="text-center py-12 text-slate-500">暂无案例</div>
+          ) : (
+            <Carousel
+              opts={{
+                align: 'start',
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {cases.map((caseItem) => (
+                  <CarouselItem key={caseItem.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                    <Card className="overflow-hidden group cursor-pointer border-none shadow-md hover:shadow-xl transition-all duration-300">
+                      <div className="aspect-video bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 flex items-center justify-center relative overflow-hidden">
+                        {caseItem.mediaUrl ? (
+                          caseItem.mediaType === 'video' ? (
+                            <video
+                              src={caseItem.mediaUrl}
+                              className="w-full h-full object-cover"
+                              controls
+                              poster="/video-placeholder.jpg"
+                            />
+                          ) : (
+                            <img
+                              src={caseItem.mediaUrl}
+                              alt={caseItem.title}
+                              className="w-full h-full object-cover"
+                            />
+                          )
+                        ) : (
+                          <div className="flex flex-col items-center gap-2">
+                            {caseItem.mediaType === 'video' ? (
+                              <Video className="w-12 h-12 text-blue-400" />
+                            ) : (
+                              <Image className="w-12 h-12 text-blue-400" />
+                            )}
+                            <span className="text-sm text-slate-400">暂无媒体</span>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                          <Button variant="secondary" size="sm">
+                            查看详情
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full">
-                          {caseItem.category}
-                        </span>
-                      </div>
-                      <h3 className="font-semibold text-slate-900 mb-1">{caseItem.title}</h3>
-                      <p className="text-sm text-slate-600">{caseItem.description}</p>
-                    </CardContent>
-                  </Card>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="left-0" />
-            <CarouselNext className="right-0" />
-          </Carousel>
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full">
+                            {caseItem.category}
+                          </span>
+                          <span className="text-xs px-2 py-1 bg-slate-100 text-slate-600 rounded-full">
+                            {caseItem.mediaType === 'video' ? '视频' : '图片'}
+                          </span>
+                        </div>
+                        <h3 className="font-semibold text-slate-900 mb-1 line-clamp-1">{caseItem.title}</h3>
+                        <p className="text-sm text-slate-600 line-clamp-2">{caseItem.description}</p>
+                      </CardContent>
+                    </Card>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-0" />
+              <CarouselNext className="right-0" />
+            </Carousel>
+          )}
         </div>
       </section>
 
