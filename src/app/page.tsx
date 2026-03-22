@@ -18,16 +18,39 @@ interface CaseItem {
 function VideoPlayer({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showNativeControls, setShowNativeControls] = useState(false);
 
-  const togglePlay = () => {
-    if (videoRef.current) {
+  const togglePlay = async (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // 如果已显示原生控件，则不需要自定义控制
+    if (showNativeControls) return;
+    
+    if (!videoRef.current) return;
+    
+    try {
       if (videoRef.current.paused) {
-        videoRef.current.play();
+        // iOS 需要在用户交互中调用 play()
+        await videoRef.current.play();
         setIsPlaying(true);
       } else {
         videoRef.current.pause();
         setIsPlaying(false);
       }
+    } catch (err) {
+      console.error('视频播放失败，切换到原生控件:', err);
+      // 如果自定义播放失败，切换到原生控件
+      setShowNativeControls(true);
+      setHasError(false);
+      // 延迟一帧后尝试播放
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.play().catch(() => setHasError(true));
+        }
+      }, 100);
     }
   };
 
@@ -43,23 +66,75 @@ function VideoPlayer({ src }: { src: string }) {
     setIsPlaying(true);
   };
 
+  const handleLoadedData = () => {
+    setIsLoading(false);
+  };
+
+  const handleError = () => {
+    setHasError(true);
+    setIsLoading(false);
+  };
+
   return (
-    <div className="relative w-full h-full cursor-pointer" onClick={togglePlay}>
+    <div 
+      className="relative w-full h-full"
+      onClick={togglePlay}
+      onTouchEnd={togglePlay}
+    >
       <video 
         ref={videoRef}
         src={src} 
         className="w-full h-full object-cover" 
-        playsInline 
-        preload="metadata"
+        playsInline
         webkit-playsinline="true"
+        x5-video-player-type="h5"
+        x5-video-player-fullscreen="true"
+        x5-playsinline="true"
+        preload="auto"
+        controls={showNativeControls}
+        poster=""
         onEnded={handleEnded}
         onPause={handlePause}
         onPlay={handlePlay}
+        onLoadedData={handleLoadedData}
+        onError={handleError}
       />
-      {!isPlaying && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-          <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg transition-transform hover:scale-110">
-            <Play className="w-5 h-5 md:w-6 md:h-6 text-slate-800 ml-0.5" />
+      
+      {/* 加载中状态 */}
+      {isLoading && !hasError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/10 pointer-events-none">
+          <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+      
+      {/* 播放按钮 - 仅在暂停时显示，且未显示原生控件时 */}
+      {!isPlaying && !hasError && !isLoading && !showNativeControls && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/95 flex items-center justify-center shadow-xl">
+            <Play className="w-6 h-6 md:w-7 md:h-7 text-slate-800 ml-1" />
+          </div>
+        </div>
+      )}
+      
+      {/* 错误提示 - 点击可重试 */}
+      {hasError && (
+        <div 
+          className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer"
+          onClick={() => {
+            setHasError(false);
+            setShowNativeControls(true);
+            setTimeout(() => {
+              if (videoRef.current) {
+                videoRef.current.load();
+              }
+            }, 100);
+          }}
+        >
+          <div className="text-white text-xs text-center px-2">
+            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-2">
+              <Play className="w-6 h-6" />
+            </div>
+            点击重试
           </div>
         </div>
       )}
@@ -298,9 +373,15 @@ export default function Home() {
                     ) : (
                       <div className="flex flex-col items-center gap-0.5 md:gap-1">
                         {caseItem.mediaType === 'video' ? (
-                          <Video className="w-5 h-5 md:w-10 md:h-10 text-slate-300" />
+                          <>
+                            <Video className="w-5 h-5 md:w-10 md:h-10 text-slate-300" />
+                            <span className="text-[8px] md:text-xs text-slate-400">待上传视频</span>
+                          </>
                         ) : (
-                          <Image className="w-5 h-5 md:w-10 md:h-10 text-slate-300" />
+                          <>
+                            <Image className="w-5 h-5 md:w-10 md:h-10 text-slate-300" />
+                            <span className="text-[8px] md:text-xs text-slate-400">待上传图片</span>
+                          </>
                         )}
                       </div>
                     )}
