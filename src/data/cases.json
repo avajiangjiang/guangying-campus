@@ -63,6 +63,14 @@
       "description": "记录孩子们的精彩表演与欢笑",
       "mediaUrl": "",
       "mediaType": "image"
+    },
+    {
+      "id": "9",
+      "title": "XX中学2024届毕业相册",
+      "category": "毕业相册",
+      "description": "珍藏青春记忆，定格最美年华",
+      "mediaUrl": "",
+      "mediaType": "image"
     }
   ]
 }
