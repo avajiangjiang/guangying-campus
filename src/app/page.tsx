@@ -17,93 +17,52 @@ interface CaseItem {
 // 视频播放组件
 function VideoPlayer({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [showNativeControls, setShowNativeControls] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const togglePlay = async (e: React.MouseEvent | React.TouchEvent) => {
+  // 点击播放并进入全屏
+  const playFullscreen = async (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    // 如果已显示原生控件，则不需要自定义控制
-    if (showNativeControls) return;
     
     if (!videoRef.current) return;
     
     try {
-      if (videoRef.current.paused) {
-        // iOS 需要在用户交互中调用 play()
-        await videoRef.current.play();
-        setIsPlaying(true);
-      } else {
-        videoRef.current.pause();
-        setIsPlaying(false);
-      }
-    } catch (err) {
-      console.error('视频播放失败，切换到原生控件:', err);
-      // 如果自定义播放失败，切换到原生控件
-      setShowNativeControls(true);
-      setHasError(false);
-      // 延迟一帧后尝试播放
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.play().catch(() => setHasError(true));
-        }
-      }, 100);
-    }
-  };
-
-  // 全屏播放
-  const requestFullscreen = async () => {
-    const elem = containerRef.current || videoRef.current;
-    if (!elem) return;
-    
-    try {
-      if (elem.requestFullscreen) {
-        await elem.requestFullscreen();
-      } else if ((elem as any).webkitRequestFullscreen) {
-        // Safari
-        await (elem as any).webkitRequestFullscreen();
-      } else if ((elem as any).webkitEnterFullscreen) {
-        // iOS
-        await (elem as any).webkitEnterFullscreen();
+      const video = videoRef.current;
+      
+      // 先尝试进入全屏
+      if (video.requestFullscreen) {
+        await video.requestFullscreen();
+      } else if ((video as any).webkitEnterFullscreen) {
+        // iOS Safari
+        await (video as any).webkitEnterFullscreen();
+      } else if ((video as any).webkitRequestFullscreen) {
+        // Safari desktop
+        await (video as any).webkitRequestFullscreen();
+      } else if ((video as any).msRequestFullscreen) {
+        // IE/Edge
+        await (video as any).msRequestFullscreen();
       }
       
-      // 进入全屏后自动播放
-      if (videoRef.current && videoRef.current.paused) {
-        await videoRef.current.play();
-        setIsPlaying(true);
-      }
+      // 然后播放视频
+      await video.play();
+      
     } catch (err) {
-      console.error('全屏请求失败:', err);
-      // 如果全屏失败，尝试直接播放
-      togglePlay({ preventDefault: () => {}, stopPropagation: () => {} } as any);
+      console.error('全屏播放失败:', err);
+      // 如果全屏失败，直接播放
+      try {
+        await videoRef.current.play();
+      } catch (playErr) {
+        console.error('播放失败:', playErr);
+        setHasError(true);
+      }
     }
-  };
-
-  const handleEnded = () => {
-    setIsPlaying(false);
-  };
-
-  const handlePause = () => {
-    setIsPlaying(false);
-  };
-
-  const handlePlay = () => {
-    setIsPlaying(true);
-  };
-
-  const handleLoadedData = () => {
-    setIsLoading(false);
   };
 
   const handleError = () => {
     setIsLoading(false);
     setHasError(true);
-    // 检查是否是网络错误或格式不支持
     if (videoRef.current?.error) {
       switch (videoRef.current.error.code) {
         case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
@@ -120,10 +79,9 @@ function VideoPlayer({ src }: { src: string }) {
 
   return (
     <div 
-      ref={containerRef}
-      className="relative w-full h-full"
-      onClick={togglePlay}
-      onTouchEnd={togglePlay}
+      className="relative w-full h-full cursor-pointer"
+      onClick={playFullscreen}
+      onTouchEnd={playFullscreen}
     >
       <video 
         ref={videoRef}
@@ -134,13 +92,8 @@ function VideoPlayer({ src }: { src: string }) {
         x5-video-player-type="h5"
         x5-video-player-fullscreen="true"
         x5-playsinline="true"
-        preload="auto"
-        controls={showNativeControls}
-        poster=""
-        onEnded={handleEnded}
-        onPause={handlePause}
-        onPlay={handlePlay}
-        onLoadedData={handleLoadedData}
+        preload="metadata"
+        onLoadedData={() => setIsLoading(false)}
         onError={handleError}
       />
       
@@ -151,38 +104,23 @@ function VideoPlayer({ src }: { src: string }) {
         </div>
       )}
       
-      {/* 播放按钮 - 仅在暂停时显示，且未显示原生控件时 */}
-      {!isPlaying && !hasError && !isLoading && !showNativeControls && (
+      {/* 播放按钮 */}
+      {!hasError && !isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
-          <div className="flex flex-col items-center gap-2 pointer-events-auto">
-            <button 
-              className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-white/95 flex items-center justify-center shadow-xl transition-transform hover:scale-110 active:scale-95"
-              onClick={(e) => {
-                e.stopPropagation();
-                requestFullscreen();
-              }}
-            >
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-white/95 flex items-center justify-center shadow-xl">
               <Play className="w-7 h-7 md:w-8 md:h-8 text-slate-800 ml-1" />
-            </button>
-            <span className="text-white text-xs bg-black/50 px-2 py-1 rounded">点击播放</span>
+            </div>
+            <span className="text-white text-xs bg-black/50 px-3 py-1 rounded-full">点击全屏播放</span>
           </div>
         </div>
       )}
       
-      {/* 错误提示 - 点击可重试 */}
+      {/* 错误提示 */}
       {hasError && (
         <div 
-          className="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer"
-          onClick={() => {
-            setHasError(false);
-            setShowNativeControls(true);
-            setErrorMessage('');
-            setTimeout(() => {
-              if (videoRef.current) {
-                videoRef.current.load();
-              }
-            }, 100);
-          }}
+          className="absolute inset-0 flex items-center justify-center bg-black/40"
+          onClick={playFullscreen}
         >
           <div className="text-white text-center px-4">
             <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">
