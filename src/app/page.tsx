@@ -60,11 +60,11 @@ export default function Home() {
             </div>
             
             {/* 桌面端导航 */}
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-6">
               <button onClick={() => scrollToSection('about')} className="text-slate-600 hover:text-blue-600 transition-colors text-sm">关于我们</button>
               <button onClick={() => scrollToSection('services')} className="text-slate-600 hover:text-blue-600 transition-colors text-sm">服务内容</button>
+              <button onClick={() => scrollToSection('albums')} className="text-slate-600 hover:text-blue-600 transition-colors text-sm">相册展示</button>
               <button onClick={() => scrollToSection('cases')} className="text-slate-600 hover:text-blue-600 transition-colors text-sm">案例展示</button>
-              <button onClick={() => scrollToSection('contact')} className="text-slate-600 hover:text-blue-600 transition-colors text-sm">联系我们</button>
               <Button size="sm" className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
                 立即咨询
               </Button>
@@ -81,10 +81,11 @@ export default function Home() {
         {mobileMenuOpen && (
           <div className="md:hidden bg-white border-t border-slate-100">
             <div className="px-4 py-3 space-y-1">
-              <button onClick={() => scrollToSection('about')} className="block w-full text-left py-3 text-slate-600 text-sm">关于我们</button>
-              <button onClick={() => scrollToSection('services')} className="block w-full text-left py-3 text-slate-600 text-sm">服务内容</button>
-              <button onClick={() => scrollToSection('cases')} className="block w-full text-left py-3 text-slate-600 text-sm">案例展示</button>
-              <button onClick={() => scrollToSection('contact')} className="block w-full text-left py-3 text-slate-600 text-sm">联系我们</button>
+              <button onClick={() => scrollToSection('about')} className="block w-full text-left py-2.5 text-slate-600 text-sm">关于我们</button>
+              <button onClick={() => scrollToSection('services')} className="block w-full text-left py-2.5 text-slate-600 text-sm">服务内容</button>
+              <button onClick={() => scrollToSection('albums')} className="block w-full text-left py-2.5 text-slate-600 text-sm">相册展示</button>
+              <button onClick={() => scrollToSection('cases')} className="block w-full text-left py-2.5 text-slate-600 text-sm">案例展示</button>
+              <button onClick={() => scrollToSection('contact')} className="block w-full text-left py-2.5 text-slate-600 text-sm">联系我们</button>
               <div className="pt-2">
                 <Button size="sm" className="w-full bg-gradient-to-r from-blue-500 to-purple-600">立即咨询</Button>
               </div>
@@ -213,8 +214,55 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 相册展示 */}
+      <section id="albums" className="py-12 md:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-xl md:text-3xl font-bold text-slate-900 mb-2 md:mb-4">
+              精品<span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">相册展示</span>
+            </h2>
+            <p className="text-xs md:text-base text-slate-500 max-w-xl mx-auto">
+              多种风格相册任您选择，珍藏青春美好时光
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {[
+              { name: '经典纪念版', price: '¥298起', desc: '简约大气，永恒经典', color: 'from-blue-100 to-blue-50' },
+              { name: '青春活力版', price: '¥398起', desc: '活泼色彩，青春气息', color: 'from-purple-100 to-purple-50' },
+              { name: '文艺清新版', price: '¥358起', desc: '文艺风格，清新淡雅', color: 'from-pink-100 to-pink-50' },
+              { name: '高端定制版', price: '¥598起', desc: '奢华质感，专属定制', color: 'from-amber-100 to-amber-50' },
+            ].map((album, index) => (
+              <Card key={index} className="group cursor-pointer border border-slate-100 hover:border-slate-200 hover:shadow-xl transition-all duration-300 overflow-hidden">
+                <div className={`aspect-[3/4] bg-gradient-to-br ${album.color} flex items-center justify-center relative`}>
+                  <div className="text-center">
+                    <BookOpen className="w-12 h-12 md:w-16 md:h-16 text-slate-400 mx-auto mb-2" />
+                    <span className="text-xs text-slate-400">相册预览</span>
+                  </div>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <span className="text-white text-sm font-medium px-4 py-2 bg-white/20 rounded-full backdrop-blur-sm">
+                      查看详情
+                    </span>
+                  </div>
+                </div>
+                <CardContent className="p-3 md:p-4">
+                  <h3 className="font-semibold text-slate-900 text-sm md:text-base mb-1">{album.name}</h3>
+                  <p className="text-[10px] md:text-xs text-slate-500 mb-2">{album.desc}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-blue-600 font-bold text-sm md:text-base">{album.price}</span>
+                    <Button size="sm" variant="ghost" className="text-xs text-slate-500 hover:text-blue-600 p-0 h-auto">
+                      了解更多
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* 案例展示 */}
-      <section id="cases" className="py-12 md:py-24 bg-white">
+      <section id="cases" className="py-12 md:py-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
           <div className="text-center mb-8 md:mb-16">
             <h2 className="text-xl md:text-3xl font-bold text-slate-900 mb-2 md:mb-4">
@@ -267,7 +315,7 @@ export default function Home() {
       </section>
 
       {/* 服务流程 */}
-      <section className="py-8 md:py-12 bg-slate-50">
+      <section className="py-8 md:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
           <div className="text-center mb-6 md:mb-8">
             <h2 className="text-lg md:text-2xl font-bold text-slate-900 mb-1 md:mb-2">
