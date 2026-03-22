@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Upload, Trash2, Edit, Plus, Save, ArrowLeft, Image, Video } from 'lucide-react';
+import { Upload, Trash2, Edit, Plus, Save, ArrowLeft, Image, Video, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 interface Case {
@@ -38,12 +38,11 @@ export default function AdminPage() {
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<string>('');
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [currentCase, setCurrentCase] = useState<Case | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 加载案例数据
   useEffect(() => {
     fetchCases();
   }, []);
@@ -55,17 +54,28 @@ export default function AdminPage() {
       setCases(data.cases || []);
     } catch (error) {
       console.error('加载失败:', error);
+      alert('加载案例数据失败，请刷新页面重试');
     } finally {
       setLoading(false);
     }
   };
 
-  // 上传文件
   const handleUpload = async (caseId: string, file: File) => {
-    setUploading(true);
+    // 检查文件大小（最大100MB）
+    const maxSize = 100 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert('文件太大，请选择小于100MB的文件');
+      return;
+    }
+
+    setUploadingId(caseId);
+    setUploadProgress('准备上传...');
+
     try {
       const formData = new FormData();
       formData.append('file', file);
+
+      setUploadProgress(`正在上传: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
 
       const res = await fetch('/api/upload', {
         method: 'POST',
@@ -73,8 +83,10 @@ export default function AdminPage() {
       });
 
       const data = await res.json();
+      
       if (data.success) {
-        // 更新案例的媒体URL
+        setUploadProgress('上传成功，正在保存...');
+        
         const updatedCases = cases.map((c) =>
           c.id === caseId
             ? {
@@ -85,20 +97,23 @@ export default function AdminPage() {
             : c
         );
         setCases(updatedCases);
-        // 自动保存
         await saveCases(updatedCases);
+        setUploadProgress('');
+        
+        alert('上传成功！');
       } else {
-        alert('上传失败: ' + data.error);
+        alert('上传失败: ' + (data.error || '未知错误'));
+        setUploadProgress('');
       }
     } catch (error) {
       console.error('上传失败:', error);
-      alert('上传失败，请重试');
+      alert('上传失败，请检查网络连接后重试');
+      setUploadProgress('');
     } finally {
-      setUploading(false);
+      setUploadingId(null);
     }
   };
 
-  // 保存案例
   const saveCases = async (updatedCases: Case[]) => {
     setSaving(true);
     try {
@@ -109,17 +124,15 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (!data.success) {
-        alert('保存失败');
+        console.error('保存失败');
       }
     } catch (error) {
       console.error('保存失败:', error);
-      alert('保存失败，请重试');
     } finally {
       setSaving(false);
     }
   };
 
-  // 添加新案例
   const addCase = () => {
     const newCase: Case = {
       id: Date.now().toString(),
@@ -134,7 +147,6 @@ export default function AdminPage() {
     saveCases(updatedCases);
   };
 
-  // 删除案例
   const deleteCase = (id: string) => {
     if (!confirm('确定要删除这个案例吗？')) return;
     const updatedCases = cases.filter((c) => c.id !== id);
@@ -142,13 +154,11 @@ export default function AdminPage() {
     saveCases(updatedCases);
   };
 
-  // 编辑案例
   const editCase = (caseItem: Case) => {
     setCurrentCase({ ...caseItem });
     setEditDialogOpen(true);
   };
 
-  // 保存编辑
   const saveEdit = () => {
     if (!currentCase) return;
     const updatedCases = cases.map((c) =>
@@ -160,18 +170,33 @@ export default function AdminPage() {
     setCurrentCase(null);
   };
 
-  // 手动输入URL
-  const updateMediaUrl = (id: string, url: string, type: 'image' | 'video') => {
+  const updateMediaUrl = (id: string, url: string) => {
+    const isVideo = url.match(/\.(mp4|mov|avi|webm|mkv)(\?|$)/i) || url.includes('video');
     const updatedCases = cases.map((c) =>
-      c.id === id ? { ...c, mediaUrl: url, mediaType: type } : c
+      c.id === id ? { ...c, mediaUrl: url, mediaType: (isVideo ? 'video' : 'image') as 'video' | 'image' } : c
     );
     setCases(updatedCases);
+  };
+
+  // 触发文件选择
+  const triggerFileInput = (caseId: string) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,video/*';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) handleUpload(caseId, file);
+    };
+    input.click();
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">加载中...</div>
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <div className="text-slate-600">加载中...</div>
+        </div>
       </div>
     );
   }
@@ -188,7 +213,7 @@ export default function AdminPage() {
                 返回首页
               </Button>
             </Link>
-            <h1 className="text-xl font-bold text-slate-900">案例管理</h1>
+            <h1 className="text-xl font-bold text-slate-900">案例管理后台</h1>
           </div>
           <div className="flex items-center gap-2">
             <Link href="/" target="_blank">
@@ -204,15 +229,22 @@ export default function AdminPage() {
         </div>
       </header>
 
+      {/* 上传进度提示 */}
+      {uploadingId && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span>{uploadProgress}</span>
+        </div>
+      )}
+
       {/* 主内容 */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-          <h3 className="font-semibold text-blue-900 mb-2">使用说明</h3>
-          <ul className="text-sm text-blue-800 space-y-1">
-            <li>• 点击案例卡片上的「上传」按钮可以上传图片或视频</li>
-            <li>• 也可以直接在「媒体链接」输入框中粘贴已有的图片/视频URL</li>
-            <li>• 点击「编辑」按钮可以修改案例的标题、分类和描述</li>
-            <li>• 所有更改会自动保存</li>
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <h3 className="font-semibold text-amber-900 mb-2">使用说明</h3>
+          <ul className="text-sm text-amber-800 space-y-1">
+            <li>• <strong>方式一</strong>：点击「上传文件」按钮选择本地的图片或视频（支持100MB以内）</li>
+            <li>• <strong>方式二</strong>：在「媒体链接」输入框粘贴已有的图片/视频URL链接</li>
+            <li>• 上传成功后会自动保存，可返回首页预览效果</li>
           </ul>
         </div>
 
@@ -227,6 +259,8 @@ export default function AdminPage() {
                       src={caseItem.mediaUrl}
                       className="w-full h-full object-cover"
                       controls
+                      playsInline
+                      preload="metadata"
                     />
                   ) : (
                     <img
@@ -236,35 +270,29 @@ export default function AdminPage() {
                     />
                   )
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-slate-400">
+                  <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
                     {caseItem.mediaType === 'video' ? (
-                      <Video className="w-12 h-12" />
+                      <Video className="w-12 h-12 mb-2" />
                     ) : (
-                      <Image className="w-12 h-12" />
+                      <Image className="w-12 h-12 mb-2" />
                     )}
+                    <span className="text-sm">暂无媒体</span>
                   </div>
                 )}
                 
-                {/* 上传按钮 */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      const input = document.createElement('input');
-                      input.type = 'file';
-                      input.accept = 'image/*,video/*';
-                      input.onchange = (e) => {
-                        const file = (e.target as HTMLInputElement).files?.[0];
-                        if (file) handleUpload(caseItem.id, file);
-                      };
-                      input.click();
-                    }}
-                    disabled={uploading}
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    上传文件
-                  </Button>
-                </div>
+                {/* 上传遮罩 */}
+                {!uploadingId && (
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Button
+                      size="sm"
+                      onClick={() => triggerFileInput(caseItem.id)}
+                      className="bg-white text-slate-900 hover:bg-slate-100"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      上传文件
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <CardContent className="p-4">
@@ -285,18 +313,10 @@ export default function AdminPage() {
 
                 {/* 媒体链接输入 */}
                 <div className="mb-3">
-                  <Label className="text-xs text-slate-500">媒体链接（可直接粘贴URL）</Label>
+                  <Label className="text-xs text-slate-500">媒体链接（可粘贴URL）</Label>
                   <Input
                     value={caseItem.mediaUrl}
-                    onChange={(e) =>
-                      updateMediaUrl(
-                        caseItem.id,
-                        e.target.value,
-                        e.target.value.match(/\.(mp4|mov|avi|webm)$/i)
-                          ? 'video'
-                          : 'image'
-                      )
-                    }
+                    onChange={(e) => updateMediaUrl(caseItem.id, e.target.value)}
                     onBlur={() => saveCases(cases)}
                     placeholder="粘贴图片或视频链接"
                     className="mt-1 text-sm"
@@ -317,7 +337,7 @@ export default function AdminPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-red-600 hover:text-red-700"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     onClick={() => deleteCase(caseItem.id)}
                   >
                     <Trash2 className="w-4 h-4" />

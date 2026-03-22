@@ -238,7 +238,14 @@ export default function Home() {
                   <div className="aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center relative overflow-hidden">
                     {caseItem.mediaUrl ? (
                       caseItem.mediaType === 'video' ? (
-                        <video src={caseItem.mediaUrl} className="w-full h-full object-cover" controls />
+                        <video 
+                          src={caseItem.mediaUrl} 
+                          className="w-full h-full object-cover" 
+                          controls 
+                          playsInline 
+                          preload="metadata"
+                          webkit-playsinline="true"
+                        />
                       ) : (
                         <img src={caseItem.mediaUrl} alt={caseItem.title} className="w-full h-full object-cover" />
                       )

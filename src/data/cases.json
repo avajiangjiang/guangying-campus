@@ -2,7 +2,7 @@
   "cases": [
     {
       "id": "1",
-      "title": "XX中学2024届毕业微电影",
+      "title": "新津为明2025届年级微电影",
       "category": "毕业微电影",
       "description": "记录三年青春时光，讲述成长的故事",
       "mediaUrl": "",
@@ -10,17 +10,17 @@
     },
     {
       "id": "2",
-      "title": "XX大学校园宣传片",
-      "category": "专题片",
-      "description": "展现百年名校风采，传递教育理念",
+      "title": "成实外西2025届毕业视频",
+      "category": "毕业微电影",
+      "description": "",
       "mediaUrl": "",
       "mediaType": "video"
     },
     {
       "id": "3",
-      "title": "XX小学运动会纪实",
-      "category": "活动拍摄",
-      "description": "捕捉运动场上的精彩瞬间",
+      "title": "泡桐树小学天府校区毕业视频",
+      "category": "毕业微电影",
+      "description": "捕捉精彩瞬间",
       "mediaUrl": "",
       "mediaType": "image"
     },
