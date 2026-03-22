@@ -183,32 +183,33 @@ export default function Home() {
       </section>
 
       {/* 服务内容 */}
-      <section id="services" className="py-12 md:py-20 bg-slate-50">
+      <section id="services" className="py-6 md:py-10 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
-          <div className="text-center mb-8 md:mb-12">
-            <h2 className="text-xl md:text-3xl font-bold text-slate-900 mb-2 md:mb-4">
+          <div className="text-center mb-4 md:mb-6">
+            <h2 className="text-lg md:text-2xl font-bold text-slate-900 mb-1 md:mb-2">
               我们的<span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">服务内容</span>
             </h2>
-            <p className="text-xs md:text-base text-slate-500 max-w-xl mx-auto">
-              全方位校园影像拍摄服务，从活动记录到创意制作
+            <p className="text-[10px] md:text-xs text-slate-500">
+              全方位校园影像拍摄服务
             </p>
           </div>
           
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+          <div className="grid grid-cols-4 gap-2 md:gap-4">
             {services.map((service, index) => (
-              <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-none shadow-sm bg-white">
-                <CardContent className="p-4 md:p-6">
-                  <div className={`w-10 h-10 md:w-14 md:h-14 rounded-xl flex items-center justify-center mb-3 md:mb-4 ${
-                    index === 0 ? 'bg-blue-50' : index === 1 ? 'bg-purple-50' : index === 2 ? 'bg-pink-50' : 'bg-indigo-50'
-                  }`}>
-                    <service.icon className={`w-5 h-5 md:w-7 md:h-7 ${
-                      index === 0 ? 'text-blue-600' : index === 1 ? 'text-purple-600' : index === 2 ? 'text-pink-600' : 'text-indigo-600'
-                    }`} />
-                  </div>
-                  <h3 className="text-sm md:text-lg font-semibold text-slate-900 mb-1 md:mb-2">{service.title}</h3>
-                  <p className="text-xs md:text-sm text-slate-500 leading-relaxed hidden md:block">{service.description}</p>
-                </CardContent>
-              </Card>
+              <div key={index} className="group cursor-pointer">
+                <div className={`aspect-square rounded-xl flex flex-col items-center justify-center p-2 md:p-4 transition-all duration-300 ${
+                  index === 0 ? 'bg-blue-50 hover:bg-blue-100' : 
+                  index === 1 ? 'bg-purple-50 hover:bg-purple-100' : 
+                  index === 2 ? 'bg-pink-50 hover:bg-pink-100' : 'bg-indigo-50 hover:bg-indigo-100'
+                }`}>
+                  <service.icon className={`w-5 h-5 md:w-8 md:h-8 mb-1 md:mb-2 ${
+                    index === 0 ? 'text-blue-600' : 
+                    index === 1 ? 'text-purple-600' : 
+                    index === 2 ? 'text-pink-600' : 'text-indigo-600'
+                  }`} />
+                  <h3 className="text-[10px] md:text-sm font-medium text-slate-900 text-center leading-tight">{service.title}</h3>
+                </div>
+              </div>
             ))}
           </div>
         </div>
