@@ -3,13 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
-} from '@/components/ui/carousel';
 import { Camera, Video, BookOpen, Film, Phone, Mail, MapPin, Menu, X, ChevronRight, Image, Play } from 'lucide-react';
 
 interface CaseItem {
@@ -79,7 +72,7 @@ export default function Home() {
                 <Camera className="w-6 h-6 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                光影校园
+                光影校园影像
               </span>
             </div>
             
@@ -162,7 +155,7 @@ export default function Home() {
                 <div className="text-slate-600 mt-1">服务师生</div>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-indigo-600">98%</div>
+                <div className="text-3xl md:text-4xl font-bold text-indigo-600">100%</div>
                 <div className="text-slate-600 mt-1">客户满意度</div>
               </div>
             </div>
@@ -176,10 +169,10 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
-                关于<span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">光影校园</span>
+                关于<span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">光影校园影像</span>
               </h2>
               <p className="text-slate-600 mb-6 leading-relaxed">
-                光影校园成立于2014年，是一家专注于校园影像拍摄的专业机构。十余年来，我们始终秉承"记录青春、传递美好"的理念，为数百家学校提供高品质的影像服务。
+                光影校园影像成立于2014年，是一家专注于校园影像拍摄的专业机构。十余年来，我们始终秉承"记录青春、传递美好"的理念，为数百家学校提供高品质的影像服务。
               </p>
               <p className="text-slate-600 mb-6 leading-relaxed">
                 我们拥有一支由资深摄影师、摄像师、后期制作人员组成的专业团队，配备先进的拍摄设备和完善的后期制作系统，能够满足各类校园影像拍摄需求。
@@ -255,9 +248,9 @@ export default function Home() {
       </section>
 
       {/* 案例展示 */}
-      <section id="cases" className="py-20 bg-white">
+      <section id="cases" className="py-24 bg-gradient-to-b from-white to-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
               精选<span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">案例展示</span>
             </h2>
@@ -271,98 +264,83 @@ export default function Home() {
           ) : cases.length === 0 ? (
             <div className="text-center py-12 text-slate-500">暂无案例</div>
           ) : (
-            <Carousel
-              opts={{
-                align: 'start',
-                loop: true,
-              }}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-2 md:-ml-4">
-                {cases.map((caseItem) => (
-                  <CarouselItem key={caseItem.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                    <Card className="overflow-hidden group cursor-pointer border-none shadow-md hover:shadow-xl transition-all duration-300">
-                      <div className="aspect-video bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 flex items-center justify-center relative overflow-hidden">
-                        {caseItem.mediaUrl ? (
-                          caseItem.mediaType === 'video' ? (
-                            <video
-                              src={caseItem.mediaUrl}
-                              className="w-full h-full object-cover"
-                              controls
-                              poster="/video-placeholder.jpg"
-                            />
-                          ) : (
-                            <img
-                              src={caseItem.mediaUrl}
-                              alt={caseItem.title}
-                              className="w-full h-full object-cover"
-                            />
-                          )
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {cases.map((caseItem) => (
+                <Card key={caseItem.id} className="overflow-hidden group cursor-pointer border-none shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+                  <div className="aspect-video bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 flex items-center justify-center relative overflow-hidden">
+                    {caseItem.mediaUrl ? (
+                      caseItem.mediaType === 'video' ? (
+                        <video
+                          src={caseItem.mediaUrl}
+                          className="w-full h-full object-cover"
+                          controls
+                          poster="/video-placeholder.jpg"
+                        />
+                      ) : (
+                        <img
+                          src={caseItem.mediaUrl}
+                          alt={caseItem.title}
+                          className="w-full h-full object-cover"
+                        />
+                      )
+                    ) : (
+                      <div className="flex flex-col items-center gap-2">
+                        {caseItem.mediaType === 'video' ? (
+                          <Video className="w-12 h-12 text-blue-400" />
                         ) : (
-                          <div className="flex flex-col items-center gap-2">
-                            {caseItem.mediaType === 'video' ? (
-                              <Video className="w-12 h-12 text-blue-400" />
-                            ) : (
-                              <Image className="w-12 h-12 text-blue-400" />
-                            )}
-                            <span className="text-sm text-slate-400">暂无媒体</span>
-                          </div>
+                          <Image className="w-12 h-12 text-blue-400" />
                         )}
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                          <Button variant="secondary" size="sm">
-                            查看详情
-                          </Button>
-                        </div>
+                        <span className="text-sm text-slate-400">暂无媒体</span>
                       </div>
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full">
-                            {caseItem.category}
-                          </span>
-                          <span className="text-xs px-2 py-1 bg-slate-100 text-slate-600 rounded-full">
-                            {caseItem.mediaType === 'video' ? '视频' : '图片'}
-                          </span>
-                        </div>
-                        <h3 className="font-semibold text-slate-900 mb-1 line-clamp-1">{caseItem.title}</h3>
-                        <p className="text-sm text-slate-600 line-clamp-2">{caseItem.description}</p>
-                      </CardContent>
-                    </Card>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-0" />
-              <CarouselNext className="right-0" />
-            </Carousel>
+                    )}
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                      <Button variant="secondary" size="sm">
+                        查看详情
+                      </Button>
+                    </div>
+                  </div>
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full">
+                        {caseItem.category}
+                      </span>
+                      <span className="text-xs px-2 py-1 bg-slate-100 text-slate-600 rounded-full">
+                        {caseItem.mediaType === 'video' ? '视频' : '图片'}
+                      </span>
+                    </div>
+                    <h3 className="font-semibold text-slate-900 mb-2 text-lg line-clamp-1">{caseItem.title}</h3>
+                    <p className="text-sm text-slate-600 line-clamp-2">{caseItem.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
         </div>
       </section>
 
       {/* 服务流程 */}
-      <section className="py-20 bg-gradient-to-b from-slate-50 to-white">
+      <section className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
               服务<span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">流程</span>
             </h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">
+            <p className="text-slate-600 text-sm">
               规范化的服务流程，确保每个项目高质量交付
             </p>
           </div>
           
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-4 gap-4">
             {[
-              { step: '01', title: '需求沟通', desc: '了解您的具体需求和期望' },
-              { step: '02', title: '方案策划', desc: '制定详细的拍摄方案和预算' },
-              { step: '03', title: '拍摄执行', desc: '专业团队现场拍摄执行' },
-              { step: '04', title: '后期交付', desc: '精细后期制作并交付成品' },
+              { step: '01', title: '需求沟通', desc: '了解您的具体需求' },
+              { step: '02', title: '方案策划', desc: '制定拍摄方案和预算' },
+              { step: '03', title: '拍摄执行', desc: '专业团队现场拍摄' },
+              { step: '04', title: '后期交付', desc: '精细制作并交付' },
             ].map((item, index) => (
-              <div key={index} className="relative">
-                <div className="text-6xl font-bold text-blue-100 mb-2">{item.step}</div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-2">{item.title}</h3>
+              <div key={index} className="relative text-center p-4 rounded-xl bg-slate-50">
+                <div className="text-4xl font-bold text-blue-200 mb-1">{item.step}</div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-1">{item.title}</h3>
                 <p className="text-slate-600 text-sm">{item.desc}</p>
-                {index < 3 && (
-                  <div className="hidden md:block absolute top-8 right-0 w-1/2 border-t-2 border-dashed border-blue-200"></div>
-                )}
               </div>
             ))}
           </div>
@@ -370,82 +348,82 @@ export default function Home() {
       </section>
 
       {/* 联系我们 */}
-      <section id="contact" className="py-20 bg-gradient-to-br from-slate-900 to-slate-800">
+      <section id="contact" className="py-16 bg-gradient-to-br from-slate-900 to-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
                 联系我们
               </h2>
-              <p className="text-slate-300 mb-8">
+              <p className="text-slate-300 mb-6 text-sm">
                 如果您对我们的服务感兴趣，欢迎随时联系我们。我们将为您提供专业的咨询和定制化的解决方案。
               </p>
               
-              <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                    <Phone className="w-6 h-6 text-blue-400" />
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <Phone className="w-5 h-5 text-blue-400" />
                   </div>
                   <div>
-                    <div className="text-slate-400 text-sm">咨询热线</div>
+                    <div className="text-slate-400 text-xs">咨询热线</div>
                     <div className="text-white font-semibold">400-888-8888</div>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                    <Mail className="w-6 h-6 text-purple-400" />
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-purple-400" />
                   </div>
                   <div>
-                    <div className="text-slate-400 text-sm">电子邮箱</div>
+                    <div className="text-slate-400 text-xs">电子邮箱</div>
                     <div className="text-white font-semibold">contact@guangying.com</div>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-pink-500/20 rounded-xl flex items-center justify-center">
-                    <MapPin className="w-6 h-6 text-pink-400" />
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-pink-500/20 rounded-lg flex items-center justify-center">
+                    <MapPin className="w-5 h-5 text-pink-400" />
                   </div>
                   <div>
-                    <div className="text-slate-400 text-sm">公司地址</div>
+                    <div className="text-slate-400 text-xs">公司地址</div>
                     <div className="text-white font-semibold">北京市朝阳区某某大厦A座</div>
                   </div>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
-              <h3 className="text-xl font-semibold text-white mb-6">快速咨询</h3>
-              <form className="space-y-4">
+            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+              <h3 className="text-lg font-semibold text-white mb-4">快速咨询</h3>
+              <form className="space-y-3">
                 <div>
                   <input
                     type="text"
                     placeholder="您的姓名"
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   />
                 </div>
                 <div>
                   <input
                     type="text"
                     placeholder="学校名称"
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   />
                 </div>
                 <div>
                   <input
                     type="tel"
                     placeholder="联系电话"
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   />
                 </div>
                 <div>
                   <textarea
                     placeholder="请描述您的需求..."
-                    rows={4}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    rows={3}
+                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-sm"
                   ></textarea>
                 </div>
-                <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-6">
+                <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-5">
                   提交咨询
                 </Button>
               </form>
@@ -463,7 +441,7 @@ export default function Home() {
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                   <Camera className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xl font-bold text-white">光影校园</span>
+                <span className="text-xl font-bold text-white">光影校园影像</span>
               </div>
               <p className="text-slate-400 text-sm">
                 专业校园影像拍摄服务机构，记录青春岁月，定格美好时光。
@@ -501,7 +479,7 @@ export default function Home() {
           </div>
           
           <div className="border-t border-slate-800 pt-8 text-center text-slate-400 text-sm">
-            <p>© 2024 光影校园. All rights reserved.</p>
+            <p>© 2024 光影校园影像. All rights reserved.</p>
           </div>
         </div>
       </footer>
