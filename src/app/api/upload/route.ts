@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { S3Storage } from 'coze-coding-dev-sdk';
 
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '100mb',
-    },
-  },
-};
+// Next.js App Router 默认支持大文件上传，无需额外配置
 
 export async function POST(request: NextRequest) {
   try {
